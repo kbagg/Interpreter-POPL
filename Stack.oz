@@ -19,7 +19,7 @@ proc {SemanticStack AST}
       proc {SemanticStackAux}
 	 Statement = @Stack.1.1
 	 if Statement == [nop] then
-	    pass
+	    skip
 	 else
 	    {PutStack Statement.2.1}
 	    {SemanticStackAux}
