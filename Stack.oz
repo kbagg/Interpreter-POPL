@@ -12,25 +12,33 @@ end
 
 declare
 proc {PushStack Statement Environment}
-   Stack := {Append [Statement Environment] @Stack}
+   Stack := {Append [[Statement Environment]] @Stack}
 end
 
 declare
 proc {SemanticStack AST}
-   local SemanticStackAux Statement Env in
-      proc {SemanticStackAux Environment}
+   local SemanticStackAux Env in
+      proc {SemanticStackAux Environment ?Statement}
 	 Statement = {PopStack}.1
-	 if Statement == [nop] then
+	 {Browse Statement}
+	 if Statement == [nop] orelse Statement == [[nop]] then
 	    {PushStack [nop] Environment}
+	    {Browse @Stack}
 	 else
-	    {PushStack Statement.2.1 Environment}
-	    {SemanticStackAux Environment}
+	    {Browse Statement.2}
+	    {PushStack Statement.2 Environment}
+	    {Browse @Stack}
+	    {SemanticStackAux Environment _}
+	    {Browse Statement.1}
 	    {PushStack Statement.1 Environment}
-	    {SemanticStackAux Environment} 
+	    {Browse @Stack}
+	    {SemanticStackAux Environment _} 
 	 end
       end
       Env = {NewCell nil}
       {PushStack AST Env}
-      {SemanticStackAux Env}
+      {SemanticStackAux Env _}
    end
 end
+
+{SemanticStack [[nop] [nop] [nop]]}
