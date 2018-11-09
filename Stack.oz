@@ -20,7 +20,7 @@ proc {SemanticStack AST}
    local SemanticStackAux Env in
       proc {SemanticStackAux Environment ?Statement}
 	 Statement = {PopStack}.1
-	 if Statement == [nop] orelse Statement == [[nop]] then
+	 if Statement == [nop] then
 	    {PushStack [nop] Environment}
 	 else
 	    if Statement.2.2 == nil then
