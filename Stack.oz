@@ -38,9 +38,13 @@ proc {SemanticStack AST}
 	    of [nop] then
 	       {PushStack [nop] Environment}
 	    [] [var ident(X) S] then
-	       Environment := {Adjoin @Environment env(X:{NewVar})}
-	       {PushStack S Environment}
-	       {SemanticStackAux}
+	       local Var in
+		  Var = {NewVar}
+		  Environment := {Adjoin @Environment env(X:Var)}
+		  {AddToSAS Var}
+		  {PushStack S Environment}
+		  {SemanticStackAux}
+	       end
 	    else
 	       if Statement.2.2 == nil then
 		  {PushStack Statement.2.1 Environment}
