@@ -9,15 +9,21 @@ end
 
 declare
 fun {PutStack Statement}
-   Stack := {Append Statement @Stack}
+   Stack := {Append [Statement Environment] @Stack}
 end
-   
+
 declare
 proc {SemanticStack AST}
-   if AST == [nop] then
-      {PutStack [[nop] Environment]}
-   else
-      {SemanticStack AST.2.1}
-      {SemanticStack AST.1}
+   {PutStack AST Environment}
+   local SemanticStackAux Statement in
+      proc {SemanticStackAux}
+	 Statement = @Stack.1.1
+	 if Statement == [nop] then
+	    pass
+	 else
+	    {PutStack Statement.2.1}
+	    {SemanticStackAux}
+	    {PutStack Statement.1}
+	    {SemanticStackAux}
    end
 end
