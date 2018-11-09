@@ -20,18 +20,16 @@ proc {SemanticStack AST}
    local SemanticStackAux Env in
       proc {SemanticStackAux Environment ?Statement}
 	 Statement = {PopStack}.1
-	 {Browse Statement}
 	 if Statement == [nop] orelse Statement == [[nop]] then
 	    {PushStack [nop] Environment}
-	    {Browse @Stack}
 	 else
-	    {Browse Statement.2}
-	    {PushStack Statement.2 Environment}
-	    {Browse @Stack}
+	    if Statement.2.2 == nil then
+	       {PushStack Statement.2.1 Environment}
+	    else
+	       {PushStack Statement.2 Environment}
+	    end
 	    {SemanticStackAux Environment _}
-	    {Browse Statement.1}
 	    {PushStack Statement.1 Environment}
-	    {Browse @Stack}
 	    {SemanticStackAux Environment _} 
 	 end
       end
@@ -42,3 +40,4 @@ proc {SemanticStack AST}
 end
 
 {SemanticStack [[nop] [nop] [nop]]}
+{Browse @Stack}
