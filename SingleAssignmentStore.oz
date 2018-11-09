@@ -34,16 +34,16 @@ proc {PutVal L1 K}
 end
 
 declare
-proc {BindValueToKeyInSAS Key Lit}
+proc {BindValueToKeyInSAS Key Val}
    local KeyList in
       KeyList = {Dictionary.get SAS Key}
-      {PutVal KeyList Lit}
-      if {Dictionary.member SAS Lit} then
-	 local LitList in
-	    LitList = {Dictionary.get SAS Lit}
-	    {Dictionary.put SAS Lit {MergeList KeyList LitList}}
+      {PutVal KeyList Val}
+      if {Dictionary.member SAS Val} then
+	 local ValList in
+	    ValList = {Dictionary.get SAS Val}
+	    {Dictionary.put SAS Val {MergeList KeyList ValList}}
 	 end
-      else {Dictionary.put SAS Lit KeyList}
+      else {Dictionary.put SAS Val KeyList}
       end
    end
 end

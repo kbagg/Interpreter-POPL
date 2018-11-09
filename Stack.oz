@@ -1,3 +1,5 @@
+\include 'Unify.oz'
+
 declare Stack Count
 Stack = {NewCell nil}
 Count = {NewCell 1}
@@ -45,6 +47,10 @@ proc {SemanticStack AST}
 		  {PushStack S Environment}
 		  {SemanticStackAux}
 	       end
+	    [] [bind ident(X) ident(Y)] then
+	       {Unify ident(X) ident(Y) @Environment}
+	    [] [bind ident(X) V] then
+	       {Unify ident(X) V @Environment}
 	    else
 	       if Statement.2.2 == nil then
 		  {PushStack Statement.2.1 Environment}
