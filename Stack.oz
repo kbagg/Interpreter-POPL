@@ -25,5 +25,7 @@ proc {SemanticStack AST}
 	    {SemanticStackAux}
 	    {PutStack Statement.1}
 	    {SemanticStackAux}
+	 end
+      end
    end
 end
