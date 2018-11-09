@@ -8,13 +8,13 @@ fun {TopStack}
 end
 
 declare
-fun {PutStack Statement}
+proc {PutStack Statement}
    Stack := {Append [Statement Environment] @Stack}
 end
 
 declare
 proc {SemanticStack AST}
-   {PutStack AST Environment}
+   {PutStack AST}
    local SemanticStackAux Statement in
       proc {SemanticStackAux}
 	 Statement = @Stack.1.1
