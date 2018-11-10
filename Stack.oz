@@ -14,6 +14,20 @@ fun {NewVar}
 end
 
 declare
+fun {CreateNewVariables Environment ListVar}
+   %{Browse ["ListVar" ListVar]}
+   case ListVar
+   of nil then Environment
+   [] ident(X)|ListX then
+      local Var in
+	 Var = {NewVar}
+	 {AddToSAS Var}
+	 {CreateNewVariables {Adjoin Environment env(X:Var)} ListX}
+      end
+   end
+end
+
+declare
 fun {PopStack}
    case @Stack
    of nil then [nil nil]
@@ -81,6 +95,30 @@ proc {SemanticStack AST}
 	       else {Exception.'raise' variableUnbound(ident(X))}
 	       end
 	       {SemanticStackAux}
+	    [] [match ident(X) P1 S1 S2] then
+	       local XL XV PL PV in
+		  record|PL|PV = P1
+		  case {RetrieveFromSAS Environment.X}
+		  of record|XL|XV then
+		     local Env in
+			%{Browse ["PV.1" PV.1]}
+			if XL == PL andthen {IsAritySame XV.1 PV.1} then
+			   Env = {CreateNewVariables Environment {List.map PV.1 fun {$ X} X.2.1 end}}
+			   {Unify P1 record|XL|XV Env}
+			   {PushStack S1 Env}
+			else
+			   {PushStack S2 Environment}
+			end
+		     end 
+		  else
+		     if {RetrieveFromSAS Environment.X} == equivalence(Environment.X) then
+			{Exception.'raise' variableUnbound(ident(X))}
+		     else
+			{PushStack S2 Environment}
+		     end
+		  end
+	       end
+	       {SemanticStackAux}
 	    else
 	       if Statement.2.2 == nil then
 		  {PushStack Statement.2.1 Environment}
@@ -109,28 +147,29 @@ end
 
 % {SemanticStack [var ident(x)
 % 		[var ident(y)
-% 		 [var ident(z)
+% 		 [var ident(v)
 % 		  [
 % 		   [bind ident(x)
 % 		    [record literal(a)
 % 		     [
 % 		      [literal(b) literal(2)]
 % 		      [literal(c) ident(y)]
-		     
-% 		    ]
-% 		   ]]
-% 		   [bind ident(x)
-% 		    [record literal(a)
-% 		     [		     
-% 		      [literal(b) ident(z)]
-% 		      [literal(c) literal(3)]
 % 		     ]
 % 		    ]
+% 		   ]
+% 		   [match ident(x) [record literal(a)
+% 				    [		     
+% 				     [literal(b) ident(z)]
+% 				     [literal(c) ident(w)]
+% 				    ]
+% 				   ]
+% 		    [bind ident(v) literal(4)]
+% 		    [bind ident(v) literal(5)]
 % 		   ]
 % 		  ]
 % 		 ]
 % 		]
-% 	       ]		   
+% 	       ]
 % }
 
 %{SemanticStack [var ident(x) [var ident(y) [[var ident(x) [bind ident(x) literal(2)]] [bind ident(x) literal(3)]]]]}

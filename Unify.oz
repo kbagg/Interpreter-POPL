@@ -56,7 +56,9 @@ end
 
 proc {UnifyInternal Expression1 Expression2 UnificationsDone}
   %% Check if we've already performed this particular unification
-  if {List.member [Expression1 Expression2] UnificationsDone} orelse
+   %{Browse ["Expression1" Expression1]}
+   %{Browse ["Expression2" Expression2]}
+   if {List.member [Expression1 Expression2] UnificationsDone} orelse
     {List.member [Expression2 Expression1] UnificationsDone} then
     skip
   else
@@ -133,7 +135,7 @@ end
 
 %% Checks whether the arities are the same
 fun {IsAritySame FeaturePairs1 FeaturePairs2}
-  FeatureList1 = {List.map FeaturePairs1 fun {$ Pair} Pair.1 end}
+   FeatureList1 = {List.map FeaturePairs1 fun {$ Pair} Pair.1 end}
    FeatureList2 = {List.map FeaturePairs2 fun {$ Pair} Pair.1 end}
 in
   {IsEquivalentList FeatureList1 FeatureList2}
