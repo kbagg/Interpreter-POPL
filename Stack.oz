@@ -1,5 +1,4 @@
 \insert 'Unify.oz'
-\insert 'SingleAssignmentStore.oz'
 
 declare Stack Count
 Stack = {NewCell nil}
@@ -56,6 +55,7 @@ proc {SemanticStack AST}
 	    [Statement Environment] = {PopStack}
 	    {Browse ["Statement" Statement]}
 	    {Browse ["Environment" @Environment]}
+	    {Browse ["SAS" {Dictionary.entries SAS}]}
 	    case Statement
 	    of nil then skip
 	    [] [nop] then
@@ -100,7 +100,7 @@ proc {SemanticStack AST}
    end
 end
 
-{SemanticStack [[bind ident(x) literal(true)] [conditional ident(x) [nop]]]}
+{SemanticStack [var ident(x) [var ident(y) [bind ident(x) ident(y)]]]}
 %{SemanticStack [var ident(x) [nop]]}
 
 {PrintStack}

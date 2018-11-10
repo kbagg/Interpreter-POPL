@@ -20,16 +20,17 @@ declare
 %% its value, as needed. Remember that the SAS should never know about
 %% identifiers, only about other keys.
 fun {SubstituteIdentifiers Expression Environment}
-  case Expression
-  of Head|Tail then
-    %% It's a list, so recurse
-    {SubstituteIdentifiers Head Environment} |
-    {SubstituteIdentifiers Tail Environment}
-  [] ident(X) then
-    {RetrieveFromSAS Environment.X}
-  else
-    Expression
-  end
+   {Browse ["SAS in unify" {Dictionary.entries SAS}]}
+   case Expression
+   of Head|Tail then
+      %% It's a list, so recurse
+      {SubstituteIdentifiers Head Environment} |
+      {SubstituteIdentifiers Tail Environment}
+   [] ident(X) then
+      {RetrieveFromSAS Environment.X}
+   else
+      Expression
+   end
 end
 
 %% As a first pass, we substitute SAS values for identifiers.

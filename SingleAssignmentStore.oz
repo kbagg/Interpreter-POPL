@@ -19,10 +19,9 @@ proc {AddToSAS Key}
    {Browse {Dictionary.entries SAS}}
 end
 
-{Browse {VirtualString.toAtom "b"}}
-
 declare
 fun {RetrieveFromSAS Key}
+   {Browse {Dictionary.entries SAS}}
    case {Dictionary.get SAS Key}
    of literal(X) then literal(X)
    [] record|Label|KeyValue then {Dictionary.get SAS Key}
@@ -43,13 +42,6 @@ proc {BindValueToKeyInSAS Key Val}
    local KeyList in
       KeyList = {Dictionary.get SAS Key}
       {PutVal KeyList Val}
-      if {Dictionary.member SAS Val} then
-	 local ValList in
-	    ValList = {Dictionary.get SAS Val}
-	    {Dictionary.put SAS Val {MergeList KeyList ValList}}
-	 end
-      else {Dictionary.put SAS Val KeyList}
-      end
    end
 end
 
