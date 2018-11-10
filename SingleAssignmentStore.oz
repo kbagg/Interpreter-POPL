@@ -14,14 +14,11 @@ end
 
 declare
 proc {AddToSAS Key}
-   {Browse Key}
    {Dictionary.put SAS Key [Key]}
-   {Browse {Dictionary.entries SAS}}
 end
 
 declare
 fun {RetrieveFromSAS Key}
-   {Browse {Dictionary.entries SAS}}
    case {Dictionary.get SAS Key}
    of literal(X) then literal(X)
    [] record|Label|KeyValue then {Dictionary.get SAS Key}
@@ -39,6 +36,7 @@ end
 
 declare
 proc {BindValueToKeyInSAS Key Val}
+   {Browse ["Val to Key" Key Val]}
    local KeyList in
       KeyList = {Dictionary.get SAS Key}
       {PutVal KeyList Val}
@@ -47,6 +45,7 @@ end
 
 declare
 proc {BindRefToKeyInSAS Key1 Key2}
+   {Browse ["Key to Key" Key1 Key2]}
    local MList in
       MList = {MergeList {Dictionary.get SAS Key1} {Dictionary.get SAS Key2}}
       {PutVal MList MList}

@@ -16,7 +16,7 @@ end
 declare
 fun {PopStack}
    case @Stack
-   of nil then [nil {NewCell nil}]
+   of nil then [nil nil]
    else
       local Top in
 	 Top = @Stack.1
@@ -34,28 +34,27 @@ end
 declare
 proc {PrintStack}
    case @Stack
-   of H|T then
-      {Browse H}
-      {Browse H.1}
-      local Env in
-	 Env = H.2.1
-	 {Browse @Env}
-      end
+   of nil then {Browse "Stack nil"}
    else
-      skip
+      local Top S E in
+	 Top = @Stack.1
+	 [S E] = Top
+	 {Browse ["Stack" S E]}
+      end
    end
 end
-
+      
 declare
 proc {SemanticStack AST}
    local SemanticStackAux Env in
       proc {SemanticStackAux}
 	 local Statement Environment in
-	    {Browse 'begin case statement'}
 	    [Statement Environment] = {PopStack}
 	    {Browse ["Statement" Statement]}
-	    {Browse ["Environment" @Environment]}
+	    {Browse ["Environment" Environment]}
 	    {Browse ["SAS" {Dictionary.entries SAS}]}
+	    {PrintStack}
+	    {Browse ''}
 	    case Statement
 	    of nil then skip
 	    [] [nop] then
@@ -63,27 +62,24 @@ proc {SemanticStack AST}
 	    [] [var ident(X) S] then
 	       local Var in
 		  Var = {NewVar}
-		  Environment := {Adjoin @Environment env(X:Var)}
 		  {AddToSAS Var}
-		  {PushStack S Environment}
+		  {PushStack S {Adjoin Environment env(X:Var)}}
 		  {SemanticStackAux}
 	       end
 	    [] [bind ident(X) ident(Y)] then
-	       {Unify ident(X) ident(Y) @Environment}
+	       {Unify ident(X) ident(Y) Environment}
 	       {SemanticStackAux}
 	    [] [bind ident(X) V] then
-	       {Unify ident(X) V @Environment}
-	       {Browse SAS}
+	       {Unify ident(X) V Environment}
 	       {SemanticStackAux}
 	    [] [conditional ident(X) S1 S2] then
-	       case {Dictionary.get SAS @Environment.X}
+	       case {Dictionary.get SAS Environment.X}
 	       of literal(true) then {PushStack S1 Environment}
 	       [] literal(false) then {PushStack S2 Environment}
 	       else {Exception.'raise' variableUnbound(conditional)}
 	       end
 	       {SemanticStackAux}
 	    else
-	       {Browse here}
 	       if Statement.2.2 == nil then
 		  {PushStack Statement.2.1 Environment}
 	       else
@@ -94,13 +90,37 @@ proc {SemanticStack AST}
 	    end
 	 end
       end
-      Env = {NewCell nil}
-      {PushStack AST Env}
+      {PushStack AST nil}
       {SemanticStackAux}
    end
 end
 
-{SemanticStack [var ident(x) [var ident(y) [bind ident(x) ident(y)]]]}
-%{SemanticStack [var ident(x) [nop]]}
+{SemanticStack [var ident(x)
+		[var ident(y)
+		 [var ident(z)
+		  [
+		   [bind ident(x)
+		    [record literal(a)
+		     [
+		      [literal(b) literal(2)]
+		      [literal(c) ident(y)]
+		     
+		    ]
+		   ]]
+		   [bind ident(x)
+		    [record literal(a)
+		     [		     
+		      [literal(b) ident(z)]
+		      [literal(c) literal(3)]
+		     ]
+		    ]
+		   ]
+		  ]
+		 ]
+		]
+	       ]		   
+}
 
-{PrintStack}
+%{SemanticStack [var ident(x) [var ident(y) [[var ident(x) [bind ident(x) literal(2)]] [bind ident(x) literal(3)]]]]}
+
+%{SemanticStack [var ident(x) [nop]]}

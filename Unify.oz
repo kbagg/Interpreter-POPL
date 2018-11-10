@@ -20,7 +20,6 @@ declare
 %% its value, as needed. Remember that the SAS should never know about
 %% identifiers, only about other keys.
 fun {SubstituteIdentifiers Expression Environment}
-   {Browse ["SAS in unify" {Dictionary.entries SAS}]}
    case Expression
    of Head|Tail then
       %% It's a list, so recurse
@@ -90,11 +89,11 @@ proc {UnifyInternal Expression1 Expression2 UnificationsDone}
       case Expression2
       of record|Record2Label|Record2FeaturePairs then
         %% The record labels have to be the same, and so do the feature
-        %% pairs.
-        if Record1Label == Record2Label andthen {IsAritySame Record1FeaturePairs
-                                                 Record2FeaturePairs} then
+	 %% pairs.
+        if Record1Label == Record2Label andthen {IsAritySame Record1FeaturePairs.1
+						 Record2FeaturePairs.1} then
           %% Unify all the values within
-          {List.zip Record1FeaturePairs Record2FeaturePairs
+          {List.zip Record1FeaturePairs.1 Record2FeaturePairs.1
            fun {$ FeaturePair1 FeaturePair2}
              %% In case we've added a few things to the SAS in between...
              Val1 = FeaturePair1.2.1
@@ -135,7 +134,7 @@ end
 %% Checks whether the arities are the same
 fun {IsAritySame FeaturePairs1 FeaturePairs2}
   FeatureList1 = {List.map FeaturePairs1 fun {$ Pair} Pair.1 end}
-  FeatureList2 = {List.map FeaturePairs2 fun {$ Pair} Pair.1 end}
+   FeatureList2 = {List.map FeaturePairs2 fun {$ Pair} Pair.1 end}
 in
   {IsEquivalentList FeatureList1 FeatureList2}
 end
