@@ -14,8 +14,12 @@ end
 
 declare
 proc {AddToSAS Key}
+   {Browse Key}
    {Dictionary.put SAS Key [Key]}
+   {Browse {Dictionary.entries SAS}}
 end
+
+{Browse {VirtualString.toAtom "b"}}
 
 declare
 fun {RetrieveFromSAS Key}
