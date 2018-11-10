@@ -28,6 +28,31 @@ fun {CreateNewVariables Environment ListVar}
 end
 
 declare
+fun {AllVariables Statement}
+   nil
+end
+
+declare
+fun {FreeVariables Statement ArgList}
+   local AllVar in
+      AllVar = {AllVariables Statement}
+      {DifferenceList AllVar ArgList}
+   end
+end
+
+declare
+fun {ReduceEnv Environment VarList ResEnv}
+   case VarList
+   of nil then ResEnv
+   [] Var|VarList1 then
+      local X in
+	 Var = ident(X)
+	 {ReduceEnv Environment VarList1 {Adjoin ResEnv env(X:Environment.X)}}
+      end
+   end
+end
+
+declare
 fun {PopStack}
    case @Stack
    of nil then [nil nil]
@@ -118,7 +143,15 @@ proc {CheckStack}
 	 {Unify ident(X) ident(Y) Environment}
 	 {CheckStack}
       [] [bind ident(X) V] then
-	 {Unify ident(X) V Environment}
+	 case V
+	 of proce|ArgList|S then
+	       local FreeVar FreeEnv in
+		  FreeVar = {FreeVariables S.1 ArgList}
+		  FreeEnv = {ReduceEnv Environment FreeVar nil}
+		  {Unify ident(X) {Append V [FreeEnv]} Environment}
+	       end
+	 else {Unify ident(X) V Environment}
+	 end
 	 {CheckStack}
       [] [conditional ident(X) S1 S2] then
 	 {HandleConditional X S1 S2 Environment}

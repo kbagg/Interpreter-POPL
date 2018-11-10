@@ -2,6 +2,17 @@ declare SAS BindValueToKeyInSAS BindRefToKeyInSAS RetrieveFromSAS
 SAS = {Dictionary.new}
 
 declare
+fun {DifferenceList L1 L2}
+   case L1
+   of nil then nil
+   [] H|T then
+      if {Member H L2} then {DifferenceList T L2}
+      else H | {DifferenceList T L2}
+      end
+   end
+end
+
+declare
 fun {MergeList L1 L2}
    case L1
    of nil then L2
