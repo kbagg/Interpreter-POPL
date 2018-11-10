@@ -1,4 +1,5 @@
-\include 'Unify.oz'
+\insert 'Unify.oz'
+\insert 'SingleAssignmentStore.oz'
 
 declare Stack Count
 Stack = {NewCell nil}
@@ -51,6 +52,12 @@ proc {SemanticStack AST}
 	       {Unify ident(X) ident(Y) @Environment}
 	    [] [bind ident(X) V] then
 	       {Unify ident(X) V @Environment}
+	    [] [conditional ident(X) S1 S2] then
+	       case {Dictionary.get SAS @Environment.X}
+	       of literal(true) then {PushStack S1 Environment}
+	       [] literal(false) then {PushStack S2 Environment}
+	       else {Exception.'raise' variableUnbound(conditional)}
+	       end
 	    else
 	       if Statement.2.2 == nil then
 		  {PushStack Statement.2.1 Environment}
