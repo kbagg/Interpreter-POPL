@@ -33,6 +33,7 @@ fun {RetrieveFromSAS Key}
    case {Dictionary.get SAS Key}
    of literal(X) then literal(X)
    [] record|Label|KeyValue then {Dictionary.get SAS Key}
+   [] proce|ArgList|S|FreeEnv then {Dictionary.get SAS Key}
    else equivalence(Key)
    end
 end

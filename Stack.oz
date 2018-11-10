@@ -159,6 +159,22 @@ proc {CheckStack}
       [] [match ident(X) P1 S1 S2] then
 	 {HandleCase X P1 S1 S2 Environment}
 	 {CheckStack}
+      [] apply|ident(F)|ArgList1 then
+	 local ArgList2 S FreeEnv ManageArg in
+	    proce|ArgList2|S|FreeEnv = {RetrieveFromSAS Environment.F}
+	    fun {ManageArg List1 List2 ResEnv}
+	       case List2
+	       of nil then ResEnv
+	       [] ident(X)|L2 then
+		  local Y in
+		     List1.1 = ident(Y)
+		     {ManageArg List1.2 L2 {Adjoin ResEnv env(X:Environment.Y)}}
+		  end
+	       end
+	    end
+	    {PushStack S {Adjoin {ManageArg ArgList1 ArgList2 nil} FreeEnv.1}}
+	    {CheckStack}
+	 end
       else
 	 if Statement.2.2 == nil then
 	    {PushStack Statement.2.1 Environment}
