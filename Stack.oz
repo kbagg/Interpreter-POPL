@@ -76,7 +76,9 @@ proc {SemanticStack AST}
 	       case {Dictionary.get SAS Environment.X}
 	       of literal(true) then {PushStack S1 Environment}
 	       [] literal(false) then {PushStack S2 Environment}
-	       else {Exception.'raise' variableUnbound(conditional)}
+	       [] literal(_) then {Exception.'raise' incompatibleTypes(ident(X) boolean)}
+	       [] record|Tail then {Exception.'raise' incompatibleTypes(ident(X) boolean)}
+	       else {Exception.'raise' variableUnbound(ident(X))}
 	       end
 	       {SemanticStackAux}
 	    else
@@ -95,31 +97,41 @@ proc {SemanticStack AST}
    end
 end
 
-{SemanticStack [var ident(x)
-		[var ident(y)
-		 [var ident(z)
-		  [
-		   [bind ident(x)
-		    [record literal(a)
-		     [
-		      [literal(b) literal(2)]
-		      [literal(c) ident(y)]
+% {SemanticStack [var ident(x)
+% 		[var ident(y)
+% 		  [conditional ident(x)
+% 		   [bind ident(y) literal(2)]
+% 		   [bind ident(y) literal(3)]
+% 		  ]
+% 		]
+% 	       ]
+% }
+
+% {SemanticStack [var ident(x)
+% 		[var ident(y)
+% 		 [var ident(z)
+% 		  [
+% 		   [bind ident(x)
+% 		    [record literal(a)
+% 		     [
+% 		      [literal(b) literal(2)]
+% 		      [literal(c) ident(y)]
 		     
-		    ]
-		   ]]
-		   [bind ident(x)
-		    [record literal(a)
-		     [		     
-		      [literal(b) ident(z)]
-		      [literal(c) literal(3)]
-		     ]
-		    ]
-		   ]
-		  ]
-		 ]
-		]
-	       ]		   
-}
+% 		    ]
+% 		   ]]
+% 		   [bind ident(x)
+% 		    [record literal(a)
+% 		     [		     
+% 		      [literal(b) ident(z)]
+% 		      [literal(c) literal(3)]
+% 		     ]
+% 		    ]
+% 		   ]
+% 		  ]
+% 		 ]
+% 		]
+% 	       ]		   
+% }
 
 %{SemanticStack [var ident(x) [var ident(y) [[var ident(x) [bind ident(x) literal(2)]] [bind ident(x) literal(3)]]]]}
 
