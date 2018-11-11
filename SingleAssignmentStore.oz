@@ -48,7 +48,7 @@ end
 
 declare
 proc {BindValueToKeyInSAS Key Val}
-   {Browse ["Val to Key" Key Val]}
+   %{Browse ["Val to Key" Key Val]}
    local KeyList in
       KeyList = {Dictionary.get SAS Key}
       {PutVal KeyList Val}
@@ -57,7 +57,7 @@ end
 
 declare
 proc {BindRefToKeyInSAS Key1 Key2}
-   {Browse ["Key to Key" Key1 Key2]}
+   %{Browse ["Key to Key" Key1 Key2]}
    local MList in
       MList = {MergeList {Dictionary.get SAS Key1} {Dictionary.get SAS Key2}}
       {PutVal MList MList}

@@ -27,18 +27,77 @@ fun {CreateNewVariables Environment ListVar}
    end
 end
 
-declare
-fun {AllVariables Statement}
-   nil
-end
+% {Browse {AllVariables
+% 	 [bind ident(x) [proce [ident(y) ident(z)]
+% 			 [bind ident(w) ident(y)]
+% 			]
+% 	 ]
+% 	 nil}
+% }
 
 declare
 fun {FreeVariables Statement ArgList}
-   local AllVar in
-      AllVar = {AllVariables Statement}
+   %{Browse ["Statement" Statement]}
+   %{Browse ["ArgList" ArgList]}
+   local AllVar AllVariables VarFromVal in
+      fun {VarFromVal V}
+	 %{Browse V}
+	 case V
+	 of record|Label|KeyValue then {Filter {Map KeyValue.1 fun {$ X} X.2.1 end} fun {$ X} case X of ident(Y) then true else false end end}
+	 [] proce|ArgList|S then {FreeVariables S.1 ArgList}
+	 else nil
+	 end
+      end
+      fun {AllVariables Statement ResVar}
+	 case Statement
+	 of [var ident(X) S] then {AllVariables S ResVar}
+	 [] [bind ident(X) ident(Y)] then {MergeList ResVar [ident(X) ident(Y)]}
+	 [] [bind ident(X) V] then {MergeList ResVar ident(X)|{VarFromVal V}}
+	 [] [conditional ident(X) S1 S2] then
+	    local Var1 in
+	       Var1 = {AllVariables S1 {MergeList ResVar [ident(X)]}}
+	       {AllVariables S2 Var1}
+	    end
+	 [] [match ident(X) P1 S1 S2] then
+	    local Var1 in
+	       Var1 = {AllVariables S1 {MergeList ResVar [ident(X)]}}
+	       {AllVariables S2 Var1}
+	    end
+	 [] apply|ident(F)|ArgList1 then {MergeList ResVar {MergeList ident(F) ArgList1}}
+	 [] S1|S2 then
+	    local Var1 in
+	       Var1 = {AllVariables S1 ResVar}
+	       {AllVariables S2.1 Var1}
+	    end
+	 else ResVar
+	 end
+      end
+      AllVar = {AllVariables Statement nil}
       {DifferenceList AllVar ArgList}
    end
 end
+
+%{Browse {FreeVariables [bind ident(w) [proce [ident(v) ident(u)] [bind ident(v) ident(a)]]] [ident(x) ident(y)]}}
+
+% {Browse {FreeVariables [
+% 			[bind ident(x)
+% 			 [record literal(a)
+% 			  [
+% 			   [literal(b) literal(2)]
+% 			   [literal(c) ident(y)]
+% 			  ]
+% 			 ]
+% 			]
+% 			[match ident(x) [record literal(a)
+% 					 [		     
+% 					  [literal(b) ident(z)]
+% 					  [literal(c) ident(w)]
+% 					 ]
+% 					]
+% 			 [bind ident(v) literal(4)]
+% 			 [bind ident(v) literal(5)]
+% 			]
+% 		       ] nil}}
 
 declare
 fun {ReduceEnv Environment VarList ResEnv}
@@ -127,7 +186,7 @@ proc {CheckStack}
       {Browse ["Environment" Environment]}
       {Browse ["SAS" {Dictionary.entries SAS}]}
       {PrintStack}
-      {Browse ''}
+      %{Browse ''}
       case Statement
       of nil then skip
       [] [nop] then
@@ -145,11 +204,15 @@ proc {CheckStack}
       [] [bind ident(X) V] then
 	 case V
 	 of proce|ArgList|S then
+	    if {RetrieveFromSAS Environment.X} == equivalence(Environment.X) then
 	       local FreeVar FreeEnv in
 		  FreeVar = {FreeVariables S.1 ArgList}
 		  FreeEnv = {ReduceEnv Environment FreeVar nil}
-		  {Unify ident(X) {Append V [FreeEnv]} Environment}
+		  {BindValueToKeyInSAS Environment.X {Append V [FreeEnv]}}
+	          %{Unify ident(X) {Append V [FreeEnv]} Environment}
 	       end
+	    else {Exception.'raise' cantBindToProcedure(ident(X) already bound)}
+	    end
 	 else {Unify ident(X) V Environment}
 	 end
 	 {CheckStack}
@@ -195,6 +258,39 @@ proc {SemanticStack AST}
    {PushStack AST nil}
    {CheckStack}
 end
+
+% {SemanticStack [var ident(w)
+% 		[var ident(a)
+% 		 [var ident(b)
+% 		  [
+% 		   [bind ident(w) [proce [ident(x) ident(y)]
+% 				   [match ident(x) [record literal(a)
+% 						    [		     
+% 						     [literal(b) ident(z)]
+% 						     [literal(c) ident(w)]
+% 						    ]
+% 						   ]
+% 				    [bind ident(y) literal(4)]
+% 				    [bind ident(y) literal(5)]
+% 				   ]
+% 				  ]
+% 		   ]
+% 		   [
+% 		    [bind ident(a)
+% 		     [record literal(a)
+% 		      [
+% 		       [literal(b) literal(2)]
+% 		       [literal(c) ident(b)]
+% 		      ]
+% 		     ]
+% 		    ]
+% 		    [apply ident(w) ident(a) ident(b)] 
+% 		   ]
+% 		  ]
+% 		 ]
+% 		]
+% 	       ]
+% }
 
 % {SemanticStack [var ident(x)
 % 		[var ident(y)
