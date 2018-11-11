@@ -241,6 +241,28 @@ proc {CheckStack}
 	    else {Exception.'raise' invalidArityToProcedure(ident(F))}
 	    end
 	 end
+      [] [sum ident(X) ident(Y) ident(Z)] then
+	 local A B in
+	    A = {RetrieveFromSAS Environment.X}
+	    B = {RetrieveFromSAS Environment.Y}
+	    case A#B
+	    of literal(P)#literal(Q) then {PushStack [bind ident(Z) literal(P+Q)] Environment}
+	    else
+	       {Exception.'raise' incompatibleTypes(ident(X) ident(Y))}
+	    end
+	 end
+	 {CheckStack}
+      [] [product ident(X) ident(Y) ident(Z)] then
+	 local A B in
+	    A = {RetrieveFromSAS Environment.X}
+	    B = {RetrieveFromSAS Environment.Y}
+	    case A#B
+	    of literal(P)#literal(Q) then {PushStack [bind ident(Z) literal(P*Q)] Environment}
+	    else
+	       {Exception.'raise' incompatibleTypes(ident(X) ident(Y))}
+	    end
+	 end
+	 {CheckStack}
       else
 	 if Statement.2.2 == nil then
 	    {PushStack Statement.2.1 Environment}
@@ -335,3 +357,5 @@ end
 %{SemanticStack [var ident(x) [var ident(y) [[var ident(x) [bind ident(x) literal(2)]] [bind ident(x) literal(3)]]]]}
 
 %{SemanticStack [var ident(x) [nop]]}
+
+%{SemanticStack [var ident(x) [var ident(y) [var ident(z) [[bind ident(x) literal(2)] [bind ident(y) literal(3)] [product ident(x) ident(y) ident(z)]]]]]}
