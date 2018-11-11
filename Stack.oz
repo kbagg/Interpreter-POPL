@@ -358,4 +358,21 @@ end
 
 %{SemanticStack [var ident(x) [nop]]}
 
-%{SemanticStack [var ident(x) [var ident(y) [var ident(z) [[bind ident(x) literal(2)] [bind ident(y) literal(3)] [product ident(x) ident(y) ident(z)]]]]]}
+% {SemanticStack [var ident(x)
+% 		[var ident(y)
+% 		 [var ident(z)
+% 		  [var ident(w)
+% 		   [
+% 		    [bind ident(x) [proce [ident(a) ident(b) ident(c)]
+% 				    [product ident(a) ident(b) ident(c)]
+% 				   ]
+% 		    ]
+% 		    [bind ident(y) literal(3)]
+% 		    [bind ident(z) literal(4)]
+% 		    [apply ident(x) ident(y) ident(z) ident(w)]
+% 		   ]
+% 		  ]
+% 		 ]
+% 		]
+% 	       ]
+% }
